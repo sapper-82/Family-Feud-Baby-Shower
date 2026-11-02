@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Baby Shower Feud</title>
+  
+  <!-- Fonts & Styles -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+  
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+  <!-- QR Code Library for Host Button -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+  <style>
+    :root {
+      --bg-cream: #FAF6F0;
+      --card-bg: #FFFFFF;
+      --text-main: #4A3E3D;
+      --rose-gold: #B76E79;
+      --rose-gold-dark: #9A535E;
+      --soft-blush: #F4E3E3;
+      --gold-accent: #D4AF37;
+      --border-color: #E8D7D7;
+      --shadow-sm: 0 4px 15px rgba(183, 110, 121, 0.08);
+      --shadow-md: 0 8px 25px rgba(183, 110, 121, 0.15);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: var(--bg-cream);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px 15px;
+      background-image: radial-gradient(#E8D7D7 0.8px, transparent 0.8px);
+      background-size: 16px 16px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 650px;
+      margin: 0 auto;
+    }
+
+    /* Header Nav */
+    header {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 25px;
+    }
+
+    .brand {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--rose-gold-dark);
+      letter-spacing: 0.5px;
+    }
+
+    .admin-btn {
+      background: transparent;
+      border: 1px solid var(--rose-gold);
+      color: var(--rose-gold);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .admin-btn:hover {
+      background: var(--rose-gold);
+      color: white;
+    }
+
+    /* Cards */
+    .card {
+      background: var(--card-bg);
+      border-radius: 20px;
+      padding: 30px 24px;
+      box-shadow: var(--shadow-md);
+      border: 1px solid var(--border-color);
+      margin-bottom: 25px;
+    }
+
+    h1, h2, h3 {
+      font-family: 'Playfair Display', serif;
+      color: var(--rose-gold-dark);
+      text-align: center;
+    }
+
+    p.subtitle {
+      text-align: center;
+      color: #7A6B6A;
+      font-size: 0.95rem;
+      margin-top: 6px;
+      margin-bottom: 25px;
+    }
+
+    /* Forms & Inputs */
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      font-size: 0.9rem;
+      font-weight: 500;
+      margin-bottom: 8px;
+      color: var(--text-main);
+    }
+
+    input[type="text"], input[type="tel"], input[type="password"] {
+      width: 100%;
+      padding: 14px 16px;
+      border: 1.5px solid var(--border-color);
+      border-radius: 12px;
+      font-size: 1rem;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    input:focus {
+      border-color: var(--rose-gold);
+    }
+
+    .btn-primary {
+      width: 100%;
+      background: linear-gradient(135deg, var(--rose-gold), var(--rose-gold-dark));
+      color: white;
+      border: none;
+      padding: 16px;
+      border-radius: 12px;
+      font-size: 1.05rem;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: var(--shadow-sm);
+      transition: transform 0.1s, opacity 0.2s;
+    }
+
+    .btn-primary:active {
+      transform: scale(0.99);
+    }
+
+    .btn-secondary {
+      background: transparent;
+      border: 1px solid var(--rose-gold);
+      color: var(--rose-gold-dark);
+      padding: 10px 16px;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      width: 100%;
+      margin-top: 10px;
+    }
+
+    .btn-secondary:hover {
+      background: var(--soft-blush);
+    }
+
+    /* Question Flow */
+    .q-number {
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--rose-gold);
+      margin-bottom: 8px;
+    }
+
+    .q-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 20px;
+      line-height: 1.4;
+      color: var(--text-main);
+    }
+
+    /* Host Board Reveal Styles */
+    .feud-board {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin: 20px 0;
+    }
+
+    .board-slot {
+      background: var(--soft-blush);
+      border: 2px solid var(--rose-gold);
+      border-radius: 12px;
+      padding: 16px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .board-slot.hidden-answer {
+      background: var(--rose-gold);
+      color: white;
+      justify-content: center;
+    }
+
+    .board-slot .pts {
+      background: white;
+      color: var(--rose-gold-dark);
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.95rem;
+    }
+
+    /* Leaderboard */
+    .leaderboard-list {
+      list-style: none;
+      margin-top: 15px;
+    }
+
+    .leaderboard-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--border-color);
+      font-size: 1rem;
+    }
+
+    .leaderboard-item:first-child {
+      background: rgba(212, 175, 55, 0.15);
+      border-radius: 12px;
+      font-weight: 600;
+    }
+
+    .badge {
+      background: var(--rose-gold);
+      color: white;
+      padding: 4px 10px;
+      border-radius: 15px;
+      font-size: 0.85rem;
+    }
+
+    /* Modal for QR Code */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(74, 62, 61, 0.6);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    .modal-card {
+      background: white;
+      padding: 30px;
+      border-radius: 20px;
+      text-align: center;
+      max-width: 350px;
+      width: 90%;
+      box-shadow: var(--shadow-md);
+    }
+
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <div class="brand">🌸 Baby Feud</div>
+      <button class="admin-btn" onclick="openAdminModal()">Host Admin</button>
+    </header>
+
+    <!-- SECTION 1: Guest Registration -->
+    <div id="view-register" class="card">
+      <h1>Welcome to Baby Feud!</h1>
+      <p class="subtitle">Enter your name and phone number to start playing.</p>
+      <form id="form-register">
+        <div class="form-group">
+          <label for="guest-name">Your Full Name</label>
+          <input type="text" id="guest-name" placeholder="e.g., Sarah Johnson" required />
+        </div>
+        <div class="form-group">
+          <label for="guest-phone">Phone Number (for prize contact)</label>
+          <input type="tel" id="guest-phone" placeholder="e.g., (555) 000-0000" required />
+        </div>
+        <button type="submit" class="btn-primary">Start Game ➔</button>
+      </form>
+    </div>
+
+    <!-- SECTION 2: Guest Questions Form -->
+    <div id="view-game" class="card hidden">
+      <div id="questions-container"></div>
+      <button type="button" class="btn-primary" onclick="submitGuestAnswers()">Submit All Answers 🌸</button>
+    </div>
+
+    <!-- SECTION 3: Guest Completion Screen -->
+    <div id="view-complete" class="card hidden">
+      <h1>Answers Locked In! 🎉</h1>
+      <p class="subtitle" style="margin-bottom:0;">Thank you for playing! Relax and enjoy the shower while we wait for the live reveal on the big screen.</p>
+    </div>
+
+    <!-- SECTION 4: Host Admin Screen -->
+    <div id="view-admin" class="card hidden">
+      <h2>Host Control Panel</h2>
+      <p class="subtitle">Live Submissions: <strong id="submission-count">0</strong> Guests</p>
+      
+      <div style="margin-bottom: 12px;">
+        <button class="btn-secondary" onclick="showQRCodeModal()">📱 Show QR Code to Room</button>
+      </div>
+
+      <div style="margin-bottom: 20px;">
+        <button class="btn-secondary" onclick="resetSubmissionsData()">🗑️ Clear All Submissions</button>
+      </div>
+
+      <div style="margin-bottom: 20px;">
+        <label for="admin-q-select">Select Question to Reveal:</label>
+        <select id="admin-q-select" onchange="renderHostBoard()" style="width:100%; padding:12px; border-radius:10px; border:1px solid var(--border-color); font-size:1rem;">
+        </select>
+      </div>
+
+      <div id="host-feud-board" class="feud-board"></div>
+
+      <button class="btn-primary" onclick="showLeaderboard()" style="margin-top:20px;">🏆 Reveal Winner & Leaderboard</button>
+    </div>
+
+    <!-- SECTION 5: Leaderboard View -->
+    <div id="view-leaderboard" class="card hidden">
+      <h2>🏆 Final Leaderboard</h2>
+      <p class="subtitle">Top Contestants</p>
+      <ul id="leaderboard-results" class="leaderboard-list"></ul>
+      <button class="btn-primary" onclick="showHostView()" style="margin-top:20px;">Back to Host Panel</button>
+    </div>
+
+  </div>
+
+  <!-- QR Code Modal Popup -->
+  <div id="qr-modal" class="modal-overlay hidden" onclick="hideQRCodeModal()">
+    <div class="modal-card" onclick="event.stopPropagation()">
+      <h3>Scan to Play!</h3>
+      <p class="subtitle" style="margin-bottom: 15px; font-size:0.85rem;">Point your phone camera here</p>
+      <div id="qrcode-container" style="display:flex; justify-content:center; margin-bottom: 20px;"></div>
+      <button class="btn-primary" onclick="hideQRCodeModal()">Close</button>
+    </div>
+  </div>
+
+  <script>
+    // --- 1. FIREBASE CONFIGURATION (LocalStorage Fallback Enabled) ---
+    const firebaseConfig = {
+      apiKey: "AIzaSyDummyKeyForLocalStorageFallback",
+      authDomain: "baby-feud-demo.firebaseapp.com",
+      projectId: "baby-feud-demo",
+      storageBucket: "baby-feud-demo.appspot.com",
+      messagingSenderId: "123456789",
+      appId: "1:123456789:web:demo"
+    };
+    
+    let db = null;
+    try {
+      firebase.initializeApp(firebaseConfig);
+      db = firebase.firestore();
+    } catch(e) {
+      console.log("Running in local storage fallback mode.");
+    }
+
+    // --- 2. 12 QUESTION LINEUP & DICTIONARIES ---
+    const QUESTIONS = [
+      {
+        id: 1,
+        title: "The first thing a mom wants to eat or drink right after giving birth",
+        answers: [
+          { text: "Sushi / Raw Fish", pts: 50, keys: ["sushi", "raw fish", "sashimi", "roll"] },
+          { text: "Cold Deli Sandwich / Charcuterie", pts: 30, keys: ["sandwich", "deli", "turkey", "ham", "charcuterie", "sub", "prosciutto"] },
+          { text: "Coffee / Wine / Soft Cheese", pts: 20, keys: ["coffee", "wine", "cheese", "alcohol", "brie", "latte", "margarita", "beer"] }
+        ]
+      },
+      {
+        id: 2,
+        title: "Something parents miss the most about pre-baby life",
+        answers: [
+          { text: "Sleep / Naps", pts: 50, keys: ["sleep", "sleeping", "nap", "naps", "rest", "sleeping in"] },
+          { text: "Spontaneity / Going Out", pts: 30, keys: ["spontaneity", "going out", "freedom", "travel", "dates", "date night"] },
+          { text: "Peace & Quiet / Silence", pts: 20, keys: ["quiet", "peace", "silence", "alone time", "privacy"] }
+        ]
+      },
+      {
+        id: 3,
+        title: "Something new parents always forget to pack in the diaper bag",
+        answers: [
+          { text: "Extra Clothes / Onesie", pts: 50, keys: ["clothes", "change of clothes", "onesie", "outfit", "extra clothes"] },
+          { text: "Wipes / Extra Diapers", pts: 30, keys: ["wipes", "baby wipes", "diapers", "extra diapers", "diaper"] },
+          { text: "Burp Cloths / Pacifier", pts: 20, keys: ["burp cloth", "binkie", "pacifier", "paci", "towel"] }
+        ]
+      },
+      {
+        id: 4,
+        title: "A funny sound a newborn baby makes that takes parents by surprise",
+        answers: [
+          { text: "Loud Farts / Gas", pts: 50, keys: ["fart", "farts", "gas", "toots", "toot", "poop sound"] },
+          { text: "Grunting / Snorting", pts: 30, keys: ["grunt", "grunting", "snort", "snorting", "groan"] },
+          { text: "Hiccups / Squeaks", pts: 20, keys: ["hiccup", "hiccups", "squeak", "squeaking", "sneeze"] }
+        ]
+      },
+      {
+        id: 5,
+        title: "A classic lullaby parents sing to calm a fussy baby",
+        answers: [
+          { text: "Rock-a-bye Baby", pts: 50, keys: ["rockabye", "rock a bye", "rockabye baby"] },
+          { text: "Twinkle, Twinkle, Little Star", pts: 30, keys: ["twinkle", "twinkle twinkle", "star"] },
+          { text: "You Are My Sunshine", pts: 20, keys: ["sunshine", "you are my sunshine"] }
+        ]
+      },
+      {
+        id: 6,
+        title: "Something new moms wish dads would help with more at 3 AM",
+        answers: [
+          { text: "Nighttime Feedings / Getting Up", pts: 50, keys: ["feeding", "bottle", "feed", "getting up", "wake up", "wake"] },
+          { text: "Diaper Change", pts: 30, keys: ["diaper", "diaper change", "changing diaper"] },
+          { text: "Soothing / Rocking", pts: 20, keys: ["soothing", "rocking", "calming", "holding", "burping"] }
+        ]
+      },
+      {
+        id: 7,
+        title: "A place parents have accidentally left the baby pacifier",
+        answers: [
+          { text: "On top of the car / Car Seat", pts: 50, keys: ["car", "top of car", "roof", "car seat", "vehicle"] },
+          { text: "Grocery Store / Floor", pts: 30, keys: ["store", "grocery", "floor", "ground", "checkout"] },
+          { text: "Diaper Bag / Couch", pts: 20, keys: ["bag", "couch", "cushion", "diaper bag", "crib"] }
+        ]
+      },
+      {
+        id: 8,
+        title: "The most common nickname for a newborn baby",
+        answers: [
+          { text: "Peanut / Little Bean", pts: 50, keys: ["peanut", "bean", "little bean", "bug"] },
+          { text: "Sweetpea / Munchkin", pts: 30, keys: ["sweetpea", "sweet pea", "munchkin", "cutie"] },
+          { text: "Squish / Nugget", pts: 20, keys: ["squish", "nugget", "squishy", "lovebug"] }
+        ]
+      },
+      {
+        id: 9,
+        title: "A funny mistake an exhausted parent makes in public",
+        answers: [
+          { text: "Wearing mismatched shoes / Inside out clothes", pts: 50, keys: ["shoes", "mismatched", "clothes", "shirt inside out", "inside out"] },
+          { text: "Milk in pantry / Keys in fridge", pts: 30, keys: ["fridge", "pantry", "milk in pantry", "keys in fridge", "misplacing"] },
+          { text: "Rocking empty cart / Calling someone Mom", pts: 20, keys: ["cart", "rocking cart", "empty cart", "stroller", "calling mom"] }
+        ]
+      },
+      {
+        id: 10,
+        title: "Something new parents can't live without during the first month",
+        answers: [
+          { text: "Coffee / Caffeine", pts: 50, keys: ["coffee", "caffeine", "latte", "espresso"] },
+          { text: "Baby Monitor", pts: 30, keys: ["monitor", "baby monitor", "camera"] },
+          { text: "Swaddle / Velcro Wraps", pts: 20, keys: ["swaddle", "wrap", "velcro swaddle", "blanket"] }
+        ]
+      },
+      {
+        id: 11,
+        title: "A household item parents resort to using as a quick baby toy",
+        answers: [
+          { text: "Plastic Spoons / Spatula", pts: 50, keys: ["spoon", "spatula", "wooden spoon", "measuring spoons", "kitchen tool"] },
+          { text: "Empty Water Bottle", pts: 30, keys: ["bottle", "water bottle", "plastic bottle"] },
+          { text: "TV Remote / House Keys", pts: 20, keys: ["remote", "tv remote", "keys", "house keys"] }
+        ]
+      },
+      {
+        id: 12,
+        title: "The most popular nickname for grandmother",
+        answers: [
+          { text: "Grandma / Nana", pts: 50, keys: ["grandma", "nana", "gramma"] },
+          { text: "Grammy / Mimaw", pts: 30, keys: ["grammy", "mimaw", "memaw", "meemaw"] },
+          { text: "Gigi / Abuela", pts: 20, keys: ["gigi", "abuela", "abuelita", "nanna"] }
+        ]
+      }
+    ];
+
+    let currentGuest = null;
+    let localSubmissions = JSON.parse(localStorage.getItem('baby_feud_submissions') || '[]');
+
+    // --- 3. RENDER GUEST QUESTION FORM ---
+    function renderQuestionsForm() {
+      const container = document.getElementById('questions-container');
+      container.innerHTML = QUESTIONS.map((q, idx) => `
+        <div class="form-group" style="margin-bottom:25px;">
+          <div class="q-number">Question ${idx + 1} of 12</div>
+          <div class="q-title">${q.title}</div>
+          <input type="text" id="q-ans-${q.id}" placeholder="Type your answer here..." required />
+        </div>
+      `).join('');
+    }
+
+    // --- 4. FUZZY MATCHING LOGIC ---
+    function scoreAnswer(qId, userText) {
+      if (!userText) return 0;
+      const clean = userText.toLowerCase().trim();
+      const question = QUESTIONS.find(q => q.id === qId);
+      if (!question) return 0;
+
+      for (let ans of question.answers) {
+        for (let key of ans.keys) {
+          if (clean.includes(key)) {
+            return ans.pts;
+          }
+        }
+      }
+      return 0;
+    }
+
+    // --- 5. GUEST FLOW EVENT HANDLERS ---
+    document.getElementById('form-register').addEventListener('submit', (e) => {
+      e.preventDefault();
+      currentGuest = {
+        name: document.getElementById('guest-name').value,
+        phone: document.getElementById('guest-phone').value,
+        answers: {},
+        score: 0,
+        timestamp: new Date().toISOString()
+      };
+
+      document.getElementById('view-register').classList.add('hidden');
+      renderQuestionsForm();
+      document.getElementById('view-game').classList.remove('hidden');
+      window.scrollTo(0,0);
+    });
+
+    function submitGuestAnswers() {
+      let totalScore = 0;
+      QUESTIONS.forEach(q => {
+        const inputVal = document.getElementById(`q-ans-${q.id}`).value;
+        currentGuest.answers[q.id] = inputVal;
+        totalScore += scoreAnswer(q.id, inputVal);
+      });
+
+      currentGuest.score = totalScore;
+      localSubmissions.push(currentGuest);
+      localStorage.setItem('baby_feud_submissions', JSON.stringify(localSubmissions));
+
+      document.getElementById('view-game').classList.add('hidden');
+      document.getElementById('view-complete').classList.remove('hidden');
+      window.scrollTo(0,0);
+    }
+
+    // --- 6. HOST ADMIN & REVEAL BOARD ---
+    function openAdminModal() {
+      const pw = prompt("Enter Host Admin Password:");
+      if (pw === "babyfeud2026") {
+        showHostView();
+      } else if (pw !== null) {
+        alert("Incorrect password!");
+      }
+    }
+
+    function showHostView() {
+      document.getElementById('view-register').classList.add('hidden');
+      document.getElementById('view-game').classList.add('hidden');
+      document.getElementById('view-complete').classList.add('hidden');
+      document.getElementById('view-leaderboard').classList.add('hidden');
+      document.getElementById('view-admin').classList.remove('hidden');
+
+      document.getElementById('submission-count').innerText = localSubmissions.length;
+
+      const select = document.getElementById('admin-q-select');
+      select.innerHTML = QUESTIONS.map(q => `<option value="${q.id}">Q${q.id}: ${q.title}</option>`).join('');
+      renderHostBoard();
+    }
+
+    function resetSubmissionsData() {
+      if (confirm("Are you sure you want to clear all submissions?")) {
+        localSubmissions = [];
+        localStorage.removeItem('baby_feud_submissions');
+        document.getElementById('submission-count').innerText = 0;
+        alert("Submissions cleared successfully!");
+      }
+    }
+
+    // QR Code Modal Functions
+    let qrInitialized = false;
+    function showQRCodeModal() {
+      document.getElementById('qr-modal').classList.remove('hidden');
+      if (!qrInitialized) {
+        const container = document.getElementById('qrcode-container');
+        container.innerHTML = ""; // clear
+        new QRCode(container, {
+          text: window.location.href,
+          width: 200,
+          height: 200,
+          colorDark: "#4A3E3D",
+          colorLight: "#ffffff",
+          correctLevel: QRCode.CorrectLevel.H
+        });
+        qrInitialized = true;
+      }
+    }
+
+    function hideQRCodeModal() {
+      document.getElementById('qr-modal').classList.add('hidden');
+    }
+
+    function renderHostBoard() {
+      const qId = parseInt(document.getElementById('admin-q-select').value);
+      const question = QUESTIONS.find(q => q.id === qId);
+      const board = document.getElementById('host-feud-board');
+
+      board.innerHTML = question.answers.map((ans, i) => `
+        <div class="board-slot hidden-answer" onclick="revealAnswer(this, '${ans.text}', ${ans.pts})">
+          Click to Reveal #${i + 1} Answer
+        </div>
+      `).join('');
+    }
+
+    function revealAnswer(el, text, pts) {
+      el.classList.remove('hidden-answer');
+      el.innerHTML = `<span>${text}</span> <span class="pts">${pts} Pts</span>`;
+    }
+
+    function showLeaderboard() {
+      document.getElementById('view-admin').classList.add('hidden');
+      document.getElementById('view-leaderboard').classList.remove('hidden');
+
+      const sorted = [...localSubmissions].sort((a, b) => b.score - a.score);
+      const list = document.getElementById('leaderboard-results');
+
+      if (sorted.length === 0) {
+        list.innerHTML = `<li class="leaderboard-item">No player submissions recorded yet.</li>`;
+        return;
+      }
+
+      list.innerHTML = sorted.slice(0, 10).map((player, idx) => `
+        <li class="leaderboard-item">
+          <div>
+            <strong>#${idx + 1} ${player.name}</strong>
+            <div style="font-size:0.8rem; color:#7A6B6A;">${player.phone}</div>
+          </div>
+          <span class="badge">${player.score} Pts</span>
+        </li>
+      `).join('');
+    }
+  </script>
+</body>
+</html>
